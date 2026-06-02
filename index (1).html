@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>걸그룹 포지션으로 보는 내 MBTI</title>
+    <style>
+        :root {
+            --primary-color: #ff6b81;
+            --primary-light: #ff879a;
+            --background-color: #fff5f6;
+            --card-color: #ffffff;
+            --text-color: #2f3542;
+            --text-muted: #747d8c;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: var(--card-color);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(255, 107, 129, 0.15);
+            width: 100%;
+            max-width: 480px;
+            padding: 40px 25px;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        /* 공통 버튼 스타일 */
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 15px 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(255, 107, 129, 0.2);
+        }
+
+        .btn:hover {
+            background-color: var(--primary-light);
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        /* 시작 화면 */
+        #start-screen h1 {
+            font-size: 24px;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+
+        #start-screen p {
+            font-size: 15px;
+            color: var(--text-muted);
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .main-img {
+            font-size: 64px;
+            margin-bottom: 25px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* 질문 화면 */
+        #question-screen {
+            display: none;
+        }
+
+        .progress-bar {
+            background-color: #eee;
+            border-radius: 10px;
+            height: 8px;
+            width: 100%;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress {
+            background-color: var(--primary-color);
+            height: 100%;
+            width: 8.33%;
+            transition: width 0.3s ease;
+        }
+
+        .question-text {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 35px;
+            line-height: 1.5;
+            word-break: keep-all;
+        }
+
+        .answer-btn {
+            background-color: #f8f9fa;
+            color: var(--text-color);
+            border: 2px solid #f1f2f6;
+            border-radius: 15px;
+            padding: 20px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 15px;
+            transition: all 0.2s ease;
+            text-align: left;
+            line-height: 1.4;
+        }
+
+        .answer-btn:hover {
+            border-color: var(--primary-color);
+            background-color: #fff5f6;
+        }
+
+        /* 결과 화면 */
+        #result-screen {
+            display: none;
+        }
+
+        .result-sub {
+            font-size: 14px;
+            color: var(--text-muted);
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .result-title {
+            font-size: 28px;
+            color: var(--primary-color);
+            font-weight: 900;
+            margin: 5px 0 25px 0;
+        }
+
+        .position-badge {
+            display: inline-block;
+            background-color: #ffe6e9;
+            color: var(--primary-color);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .result-desc {
+            font-size: 15px;
+            line-height: 1.6;
+            color: #57606f;
+            margin-bottom: 30px;
+            text-align: left;
+            background: #fdfdfd;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #f1f2f6;
+        }
+
+        /* 선생님 궁합 카드 */
+        .chemistry-box {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .chem-card {
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .chem-card.best {
+            background-color: #e3faf2;
+            border: 1px solid #a3e9d2;
+        }
+
+        .chem-card.worst {
+            background-color: #fff5f5;
+            border: 1px solid #ffe3e3;
+        }
+
+        .chem-label {
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .best .chem-label { color: #0ca678; }
+        .worst .chem-label { color: #e03131; }
+
+        .teacher-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: #212529;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- 1. 시작 화면 -->
+        <div id="start-screen">
+            <div class="main-img">🎤✨</div>
+            <h1>걸그룹 포지션으로 보는<br>내 MBTI 테스트</h1>
+            <p>내가 걸그룹 멤버라면 어떤 역할일까?<br>MBTI부터 학교 선생님과의 찰떡 궁합까지 지금 바로 확인해봐! (이화여고 전용)</p>
+            <button class="btn" onclick="startTest()">테스트 시작하기</button>
+        </div>
+
+        <!-- 2. 질문 화면 -->
+        <div id="question-screen">
+            <div class="progress-bar">
+                <div class="progress" id="progress"></div>
+            </div>
+            <div class="question-text" id="question">질문 텍스트가 들어갑니다.</div>
+            <button class="answer-btn" id="ansA" onclick="selectAnswer('A')">선택지 A</button>
+            <button class="answer-btn" id="ansB" onclick="selectAnswer('B')">선택지 B</button>
+        </div>
+
+        <!-- 3. 결과 화면 -->
+        <div id="result-screen">
+            <p class="result-sub" id="mbti-type">ESTJ</p>
+            <h2 class="result-title" id="position-name">카리스마 총괄 리더</h2>
+            <div class="position-badge">나의 걸그룹 포지션</div>
+            <p class="result-desc" id="result-desc">결과 설명이 들어갑니다.</p>
+            
+            <!-- 선생님 궁합 -->
+            <div class="chemistry-box">
+                <div class="chem-card best">
+                    <div class="chem-label">최고의 궁합 쌤 ❤️</div>
+                    <div class="teacher-name" id="best-teacher">김이화 선생님</div>
+                </div>
+                <div class="chem-card worst">
+                    <div class="chem-label">스파크 튀는 쌤 ⚡</div>
+                    <div class="teacher-name" id="worst-teacher">박배움 선생님</div>
+                </div>
+            </div>
+
+            <button class="btn" onclick="restartTest()">다시 테스트하기</button>
+        </div>
+    </div>
+
+    <script>
+        // 12가지 질문 데이터 (보내주신 질문지 구성)
+        const questions = [
+            {
+                q: "오늘 내 직캠이 올라왔다. 나는?",
+                type: "EI",
+                A: "바로 클릭해서 댓글까지 다 읽음",
+                B: "올라온 거 알지만 왠지 못 보겠어서 나중으로 미룸"
+            },
+            {
+                q: "안무 배울 때 나는?",
+                type: "SN",
+                A: "일단 몸이 먼저 나감, 틀려도 일단 해봄",
+                B: "머릿속으로 먼저 정리하고 확실해지면 움직임"
+            },
+            {
+                q: "오늘 SNS에 뭐 올릴지 고민 중이다. 나는?",
+                type: "SN",
+                A: "전에 잘 됐던 게시물이랑 비슷하게 올림, 반응 검증된 게 좋음",
+                B: "갑자기 생각난 콘셉트로 즉흥 셀카 찍어서 올림"
+            },
+            {
+                q: "멤버가 무대 끝나고 엉엉 운다. 나는?",
+                type: "FT",
+                A: "일단 안아주고 같이 울 것 같음",
+                B: "'왜 울어, 무슨 일 있었어?' 하고 원인부터 파악함"
+            },
+            {
+                q: "오늘 팬미팅 끝나고 숙소 들어왔다. 나는?",
+                type: "EI",
+                A: "씻고 멤버들이랑 오늘 있었던 얘기 늘어놓음",
+                B: "얼른 내 방 들어가서 혼자 충전함"
+            },
+            {
+                q: "오늘 무대 의상이 나왔는데 내 취향이 아니다. 나는?",
+                type: "SN",
+                A: "그냥 입음, 어차피 무대에서 잘 보이면 된 거지",
+                B: "나만의 포인트 하나 추가해서 내 스타일로 소화해버림"
+            },
+            {
+                q: "오늘 방송 녹화가 예상보다 3시간 길어졌다. 나는?",
+                type: "JP",
+                A: "나머지 스케줄 어떻게 되는 거지… 매니저한테 바로 확인함",
+                B: "뭐 어떻게든 되겠지, 일단 지금 이거나 잘 하자"
+            },
+            {
+                q: "무대에서 가사를 한 소절 날렸다. 나는?",
+                type: "JP",
+                A: "표정 관리하면서 넘기고 끝나고 나서 혼자 복기함",
+                B: "멤버랑 눈 마주치고 그냥 웃으면서 넘김"
+            },
+            {
+                q: "해외 투어 첫 도시 도착! 나는?",
+                type: "JP",
+                A: "공연 전에 근처 뭐 있는지 미리 다 찾아놨음",
+                B: "일단 도착했으니까 나중에 찾아보면 되지"
+            },
+            {
+                q: "연습실에서 내 파트 칭찬받았다. 나는?",
+                type: "FT",
+                A: "그냥 너무 행복함, 하루 종일 기분 좋음",
+                B: "기분 좋긴 한데 왜 잘했는지 이유가 더 궁금함"
+            },
+            {
+                q: "데뷔 전날 밤. 나는?",
+                type: "JP",
+                A: "내일 동선이랑 가사 머릿속으로 다시 돌려봄",
+                B: "생각 너무 많아지니까 그냥 유튜브 보다가 잠듦"
+            },
+            {
+                q: "오늘 연습 없는 자유시간. 나는?",
+                type: "EI",
+                A: "멤버들한테 먼저 '우리 뭐 할까~' 하고 카톡 보냄",
+                B: "혼자 카페 가거나 넷플릭스 보면서 조용히 쉼"
+            }
+        ];
+
+        // 16가지 결과 데이터 (포지션, 가벼운 설명, 임의의 선생님 매칭)
+        const results = {
+            "ESTJ": { title: "칼군무 군기반장 리더", desc: "철저한 계획과 카리스마로 팀의 중심을 잡는 리더! 연습 시간 체크와 동선 관리는 모두 내 손안에 있습니다.", best: "교장 선생님", worst: "수학 김쌤" },
+            "ENTJ": { title: "팀의 비밀 병기 총괄 프로듀서", desc: "무대 콘셉트부터 앨범 방향성까지 제시하는 야망 가득한 멤버! 똑부러지는 성격으로 팀을 승리로 이끕니다.", best: "교감 선생님", worst: "영어 이쌤" },
+            "ESFJ": { title: "숙소 이모님 겸 서브보컬", desc: "멤버들의 멘탈케어부터 간식 챙기기까지 도맡아 하는 다정다감한 멤버! 팬사랑도 역대급인 소통형 아이돌입니다.", best: "가정 박쌤", worst: "물리 최쌤" },
+            "ENFJ": { title: "하트 장인 예능 센터", desc: "방송에 나갔다 하면 레전드 짤을 생성하는 에너자이저! 긍정적인 기운으로 팀의 분위기를 항상 밝게 띄웁니다.", best: "음악 최쌤", worst: "화학 정쌤" },
+            "ESTP": { title: "무대 천재 핫이슈 센터", desc: "틀려도 기죽지 않고 윙크 한 방으로 무대를 찢어버리는 본투비 연예인! 즉흥적인 매력으로 직캠 조회수 폭발 주역입니다.", best: "체육 이쌤", worst: "지리 윤쌤" },
+            "ENTP": { title: "엔딩 요정 입덕 멤버", desc: "갑자기 생각난 엉뚱한 콘셉트도 찰떡같이 소화해 내는 트렌드세터! 매번 신선한 엔딩 포즈로 덕후들을 몰고 다닙니다.", best: "미술 정쌤", worst: "한문 국쌤" },
+            "ESFP": { title: "인싸 담당 메인 댄서", desc: "노래만 나오면 자동으로 몸이 먼저 나가는 춤선 천재! 지치지 않는 텐션으로 스케줄이 길어져도 혼자 싱글벙글합니다.", best: "체육 박쌤", worst: "윤리 강쌤" },
+            "ENFP": { title: "비타민 막내 보컬", desc: "하루 종일 조잘조잘 귀여운 에너지를 뿜어내는 인간 비타민! 혼자 있는 것보다 멤버들과 다 같이 있을 때 가장 행복합니다.", best: "음악 이쌤", worst: "수학 박쌤" },
+            
+            "ISTJ": { title: "가사 한 자도 안 틀리는 메인 보컬", desc: "무대 실수가 절대 용납되지 않는 완벽주의자! 무대가 끝나면 항상 혼자서 복기하며 일지를 쓰는 성실함의 끝판왕입니다.", best: "수학 최쌤", worst: "체육 이쌤" },
+            "INTJ": { title: "세계관 마스터 메인 랩퍼", desc: "팀의 숨겨진 세계관과 철학을 조용히 기획하는 브레인 멤버! 무대 위에서는 날카롭고 이성적인 랩으로 시선을 사로잡습니다.", best: "지구과학 쌤", worst: "음악 최쌤" },
+            "ISFJ": { title: "조용한 비주얼 중심", desc: "드러나지 않게 묵묵히 제 자리를 지키며 완벽한 무대를 만드는 숨은 공신! 멤버들이 울 때 조용히 티슈를 건네는 따뜻한 마음의 소유자.", best: "국어 이쌤", worst: "화학 정쌤" },
+            "INFJ": { title: "감성 장인 메인 보컬", desc: "칭찬을 받으면 왜 잘했는지 내면 깊숙이 분석해 보는 깊은 감성의 소유자! 새벽에 혼자 이어폰을 끼고 감성을 충전합니다.", best: "문학 김쌤", worst: "수학 오쌤" },
+            "ISTP": { title: "마이웨이 시크 랩퍼", desc: "의상이 취향이 아니어도 '일단 무대에서 잘 보이면 장땡'이라며 쿨하게 넘기는 쿨톤 아이돌. 스케줄이 길어지면 배터리가 급격히 방전됩니다.", best: "정보 이쌤", worst: "영어 김쌤" },
+            "INTP": { title: "엉뚱 매력 천재 작곡가", desc: "말수는 적지만 한마디 던질 때마다 멤버들을 뒤집어지게 만드는 예능 히든카드! 데뷔 전날 밤에는 복잡한 생각을 끄고 유튜브를 봅니다.", best: "물리 한쌤", worst: "가정 박쌤" },
+            "ISFP": { title: "황금 비율 황금 막내", desc: "무대 위 화려함도 좋지만 퇴근 후 혼자 방에서 넷플릭스를 볼 때 가장 행복한 집순이 아이돌! 나만의 감각적인 스타일링 센스가 돋보입니다.", best: "미술 오쌤", worst: "역사 조쌤" },
+            "INFP": { title: "새벽 감성 라디오 DJ", desc: "직캠이 올라와도 부끄러워서 선뜻 보지 못하고 나중으로 미루는 소심한 요정! 멤버들이 울면 과몰입해서 같이 엉엉 울어버립니다.", best: "상담 선생님", worst: "교장 선생님" }
+        };
+
+        let currentIdx = 0;
+        let scores = { E: 0, I: 0, S: 0, N: 0, F: 0, T: 0, J: 0, P: 0 };
+
+        function startTest() {
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('question-screen').style.display = 'block';
+            showQuestion();
+        }
+
+        function showQuestion() {
+            if (currentIdx >= questions.length) {
+                showResult();
+                return;
+            }
+
+            const percent = ((currentIdx + 1) / questions.length) * 100;
+            document.getElementById('progress').style.width = percent + '%';
+
+            const currentQ = questions[currentIdx];
+            document.getElementById('question').innerText = currentQ.q;
+            document.getElementById('ansA').innerText = currentQ.A;
+            document.getElementById('ansB').innerText = currentQ.B;
+        }
+
+        function selectAnswer(choice) {
+            const currentQ = questions[currentIdx];
+            const type = currentQ.type;
+
+            if (choice === 'A') {
+                scores[type[0]]++;
+            } else {
+                scores[type[1]]++;
+            }
+
+            currentIdx++;
+            showQuestion();
+        }
+
+        function showResult() {
+            document.getElementById('question-screen').style.display = 'none';
+            document.getElementById('result-screen').style.display = 'block';
+
+            let mbti = "";
+            mbti += (scores.E >= scores.I) ? "E" : "I";
+            mbti += (scores.S >= scores.N) ? "S" : "N";
+            mbti += (scores.F >= scores.T) ? "F" : "T";
+            mbti += (scores.J >= scores.P) ? "J" : "P";
+
+            const resultData = results[mbti];
+            document.getElementById('mbti-type').innerText = mbti;
+            document.getElementById('position-name').innerText = resultData.title;
+            document.getElementById('result-desc').innerText = resultData.desc;
+            document.getElementById('best-teacher').innerText = resultData.best;
+            document.getElementById('worst-teacher').innerText = resultData.worst;
+        }
+
+        function restartTest() {
+            currentIdx = 0;
+            scores = { E: 0, I: 0, S: 0, N: 0, F: 0, T: 0, J: 0, P: 0 };
+            document.getElementById('result-screen').style.display = 'none';
+            document.getElementById('start-screen').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
